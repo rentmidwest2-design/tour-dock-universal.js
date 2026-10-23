@@ -51,18 +51,26 @@
       "}" +
       "#mpm-tour-dock {" +
       "  position: fixed;" +
-      "  right: 92px;" +
-      "  bottom: 24px;" +
+      "  right: 24px;" +
+      "  bottom: 125px;" +
       "  z-index: 2147483640;" +
       "  opacity: 0;" +
       "  transform: translateY(20px);" +
-      "  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);" +
+      "  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);" +
       "  pointer-events: none;" +
       "}" +
       "#mpm-tour-dock.is-visible {" +
       "  opacity: 1;" +
       "  transform: translateY(0);" +
       "  pointer-events: auto;" +
+      "}" +
+      "/* Hide when chat is active */" +
+      "#mpm-tour-dock.chat-open," +
+      "body.chat-open #mpm-tour-dock," +
+      "body.modal-open #mpm-tour-dock {" +
+      "  opacity: 0 !important;" +
+      "  pointer-events: none !important;" +
+      "  transform: translateY(15px) !important;" +
       "}" +
       "#mpm-tour-dock .mpm-btn {" +
       "  display: inline-flex;" +
@@ -107,8 +115,9 @@
       "}" +
       "@media (max-width: 600px) {" +
       "  #mpm-tour-dock {" +
-      "    right: 80px;" +
-      "    bottom: calc(16px + env(safe-area-inset-bottom, 0px));" +
+      "    right: 16px;" +
+      "    bottom: calc(85px + env(safe-area-inset-bottom, 0px));" +
+      "    z-index: 999; /* Allows mobile chat window to render on top */" +
       "  }" +
       "  #mpm-tour-dock.is-collapsed .mpm-label {" +
       "    display: none;" +
@@ -145,6 +154,44 @@
     }
   }
 
+  function watchChatState(dock) {
+    // Detect typical chat iframe/container expansions
+    function check() {
+      // Common selector patterns for ProspectPortal/Ada/BetterBot/LiveChat open containers
+      var chatFrame = document.querySelector(
+        'iframe[id*="chat" i], iframe[class*="chat" i], div[id*="chat" i][class*="open" i], #ada-chat-frame'
+      );
+
+      var isExpanded = false;
+      if (chatFrame) {
+        var rect = chatFrame.getBoundingClientRect();
+        // If an iframe expands to more than 250px height, the user is actively chatting
+        if (rect.height > 250 && rect.width > 200) {
+          isExpanded = true;
+        }
+      }
+
+      if (isExpanded) {
+        dock.classList.add("chat-open");
+      } else {
+        dock.classList.remove("chat-open");
+      }
+    }
+
+    // Check periodically during user interactions
+    window.addEventListener("resize", check, { passive: true });
+    document.addEventListener("click", function () {
+      setTimeout(check, 150);
+      setTimeout(check, 400);
+    });
+
+    // Also observe DOM modifications (e.g., when the chat widget inserts an open modal)
+    if (window.MutationObserver) {
+      var observer = new MutationObserver(check);
+      observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+    }
+  }
+
   function renderDock() {
     if (document.getElementById("mpm-tour-dock")) return;
 
@@ -173,20 +220,22 @@
     dock.appendChild(anchor);
     document.body.appendChild(dock);
 
+    // Watch for chat window opening
+    watchChatState(dock);
+
+    // Scroll depth reveal (>250px) and mobile scroll collapse
     var lastScroll = 0;
     window.addEventListener(
       "scroll",
       function () {
         var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-        // Reveal past hero (250px)
         if (currentScroll > 250) {
           dock.classList.add("is-visible");
         } else {
           dock.classList.remove("is-visible");
         }
 
-        // Mobile collapse/expand on downward/upward scroll
         if (currentScroll > lastScroll && currentScroll > 400) {
           dock.classList.add("is-collapsed");
         } else {
