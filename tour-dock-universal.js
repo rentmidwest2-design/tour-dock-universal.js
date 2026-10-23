@@ -24,7 +24,7 @@
   var targetUrl = MAP[host];
   if (!targetUrl) return;
 
-  // Suppress on contact or application pages to avoid competing with native conversion forms
+  // Suppress on contact or application pages where forms already exist
   var path = window.location.pathname.toLowerCase();
   if (path.indexOf("contact") !== -1 || path.indexOf("apply") !== -1) return;
 
@@ -34,7 +34,7 @@
     ctaText = "Tour This Layout";
   }
 
-  // Preserve UTM marketing parameters into destination URL
+  // Preserve incoming UTM campaign parameters
   if (window.location.search) {
     var sep = targetUrl.indexOf("?") !== -1 ? "&" : "?";
     targetUrl += sep + window.location.search.replace(/^\?/, "");
@@ -51,7 +51,7 @@
       "}" +
       "#mpm-tour-dock {" +
       "  position: fixed;" +
-      "  right: 24px;" +
+      "  right: 92px;" +
       "  bottom: 24px;" +
       "  z-index: 2147483640;" +
       "  opacity: 0;" +
@@ -107,7 +107,7 @@
       "}" +
       "@media (max-width: 600px) {" +
       "  #mpm-tour-dock {" +
-      "    right: 16px;" +
+      "    right: 80px;" +
       "    bottom: calc(16px + env(safe-area-inset-bottom, 0px));" +
       "  }" +
       "  #mpm-tour-dock.is-collapsed .mpm-label {" +
@@ -128,7 +128,6 @@
   }
 
   function trackEvent() {
-    // 1. GA4 gtag direct beacon
     if (typeof window.gtag === "function") {
       window.gtag("event", "schedule_tour_click", {
         event_category: "Engagement",
@@ -137,7 +136,6 @@
       });
     }
 
-    // 2. Google Tag Manager dataLayer push
     if (window.dataLayer && Array.isArray(window.dataLayer)) {
       window.dataLayer.push({
         event: "schedule_tour_click",
@@ -175,19 +173,20 @@
     dock.appendChild(anchor);
     document.body.appendChild(dock);
 
-    // Scroll depth reveal (>250px) and mobile scroll collapse
     var lastScroll = 0;
     window.addEventListener(
       "scroll",
       function () {
         var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
+        // Reveal past hero (250px)
         if (currentScroll > 250) {
           dock.classList.add("is-visible");
         } else {
           dock.classList.remove("is-visible");
         }
 
+        // Mobile collapse/expand on downward/upward scroll
         if (currentScroll > lastScroll && currentScroll > 400) {
           dock.classList.add("is-collapsed");
         } else {
