@@ -2,25 +2,35 @@
   "use strict";
 
   try {
-    // Prevent duplicate execution
-    if (window.__MPM_TOUR_DOCK_UNIVERSAL_V3__) return;
-    window.__MPM_TOUR_DOCK_UNIVERSAL_V3__ = true;
+    if (window.__MPM_TOUR_DOCK_UNIVERSAL_V4__) return;
+    window.__MPM_TOUR_DOCK_UNIVERSAL_V4__ = true;
 
     var host = String(window.location.hostname || "").replace(/^www\./, "").toLowerCase();
+    var href = window.location.href.toLowerCase();
 
-    var MAP = {
-      "ascotarms.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Ascot_Arms_(Empire_Park)/scheduletourwidget/a0F0H00000d3i9sUAA",
-      "cambriancourt.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Cambrian_Court_(Cambrian_Heights)/scheduletourwidget/a0F0H00000d3i9vUAA/",
-      "cricketcourt.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Cricket_Court_Townhomes_(Aldergrove)/scheduletourwidget/a0F0H00000d3iA1UAI/",
-      "elmwoodtownhomes.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Elmwood_Townhomes_(Elmwood)/scheduletourwidget/a0F0H00000d3iA5UAI/",
-      "empirepark.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Empire_Park_(Empire_Park)/scheduletourwidget/a0F0H00000d3iA6UAI/",
-      "pleasantviewtownhomes.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Pleasantview_Townhomes_(Empire_Park)/scheduletourwidget/a0F0H00000d3iAIUAY",
-      "rivervalleytownhomes.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Rivervalley_Townhomes_(Gold_Bar)/scheduletourwidget/a0F0H00000d3iAKUAY/",
-      "sirjohnfranklin.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/Sir_John_Franklin_(Old_Strathcona)/scheduletourwidget/a0F0H00000d3iAMUAY",
-      "thevillageatsouthgate.prospectportal.com": "https://www.myshowing.com/Midwest_Property_Management/The_Village_at_Southgate_(Southgate)/scheduletourwidget/a0F0H00000d3iAPUAY/"
-    };
+    // Flexible Hostname or URL Keyword Mapping
+    var targetUrl = "";
 
-    var targetUrl = MAP[host];
+    if (href.indexOf("ascotarms") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Ascot_Arms_(Empire_Park)/scheduletourwidget/a0F0H00000d3i9sUAA";
+    } else if (href.indexOf("cambriancourt") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Cambrian_Court_(Cambrian_Heights)/scheduletourwidget/a0F0H00000d3i9vUAA/";
+    } else if (href.indexOf("cricketcourt") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Cricket_Court_Townhomes_(Aldergrove)/scheduletourwidget/a0F0H00000d3iA1UAI/";
+    } else if (href.indexOf("elmwoodtownhomes") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Elmwood_Townhomes_(Elmwood)/scheduletourwidget/a0F0H00000d3iA5UAI/";
+    } else if (href.indexOf("empirepark") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Empire_Park_(Empire_Park)/scheduletourwidget/a0F0H00000d3iA6UAI/";
+    } else if (href.indexOf("pleasantviewtownhomes") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Pleasantview_Townhomes_(Empire_Park)/scheduletourwidget/a0F0H00000d3iAIUAY";
+    } else if (href.indexOf("rivervalleytownhomes") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Rivervalley_Townhomes_(Gold_Bar)/scheduletourwidget/a0F0H00000d3iAKUAY/";
+    } else if (href.indexOf("sirjohnfranklin") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/Sir_John_Franklin_(Old_Strathcona)/scheduletourwidget/a0F0H00000d3iAMUAY";
+    } else if (href.indexOf("southgate") !== -1) {
+      targetUrl = "https://www.myshowing.com/Midwest_Property_Management/The_Village_at_Southgate_(Southgate)/scheduletourwidget/a0F0H00000d3iAPUAY/";
+    }
+
     if (!targetUrl) return;
 
     var path = String(window.location.pathname || "").toLowerCase();
@@ -94,7 +104,6 @@
       dock.appendChild(anchor);
       document.body.appendChild(dock);
 
-      // Safe scroll listener
       var lastScroll = 0;
       window.addEventListener("scroll", function () {
         var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
